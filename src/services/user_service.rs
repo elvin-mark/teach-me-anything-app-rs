@@ -30,4 +30,18 @@ impl UserService {
         let users = self.user_repository.find_all().await?;
         Ok(users.into_iter().map(UserResponseDto::from).collect())
     }
+
+    pub async fn update_user(
+        &self,
+        id: i64,
+        dto: CreateUserDto,
+    ) -> Result<UserResponseDto, AppError> {
+        let user = self.user_repository.update(id, dto).await?;
+        Ok(UserResponseDto::from(user))
+    }
+
+    pub async fn delete_user(&self, id: i64) -> Result<String, AppError> {
+        self.user_repository.delete(id).await?;
+        Ok(String::from("Success"))
+    }
 }

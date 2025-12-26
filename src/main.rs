@@ -11,6 +11,7 @@ mod services;
 
 // use config::database::init_db_pool;
 use repositories::user_repository::UserRepository;
+use rocket::catchers;
 use routes::{health_routes, user_routes};
 use services::user_service::UserService;
 
@@ -71,6 +72,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .mount("/api/health", health_routes::routes())
         .mount("/api/users", user_routes::routes())
         .mount("/api/lessons", lesson_routes::routes())
+        .register(
+            "/",
+            catchers![
+                errors::error_handler::not_found,
+                errors::error_handler::unauthorized,
+                errors::error_handler::default_catcher
+            ],
+        )
         .launch()
         .await?;
 

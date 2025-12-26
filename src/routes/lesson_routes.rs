@@ -12,11 +12,10 @@ pub struct GenerateLessonRequest {
 
 #[post("/generate", data = "<request>")]
 async fn generate_lesson(
-    auth_result: Result<AuthGuard, AppError>,
+    _auth: AuthGuard,
     request: Json<GenerateLessonRequest>,
     lesson_service: &State<LessonService>,
 ) -> Result<Json<GeneratedLesson>, AppError> {
-    let _auth = auth_result?;
     let lesson = lesson_service
         .generate_lesson(&request.topic)
         .await

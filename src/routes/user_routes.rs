@@ -3,7 +3,7 @@ use crate::{
     errors::app_error::AppError,
     services::user_service::UserService,
 };
-use rocket::{Route, State, get, post, routes, serde::json::Json};
+use rocket::{Route, State, delete, get, patch, post, routes, serde::json::Json};
 
 #[post("/", data = "<create_user>")]
 async fn create_user(
@@ -12,6 +12,24 @@ async fn create_user(
 ) -> Result<Json<UserResponseDto>, AppError> {
     let user = user_service.create_user(create_user.into_inner()).await?;
     Ok(Json(user))
+}
+
+#[patch("/<id>", data = "<update_user>")]
+async fn update_user(
+    id: i64,
+    update_user: Json<CreateUserDto>,
+    user_service: &State<UserService>,
+) -> Result<Json<UserResponseDto>, AppError> {
+    let user = user_service
+        .update_user(id, update_user.into_inner())
+        .await?;
+    Ok(Json(user))
+}
+
+#[delete("/<id>")]
+async fn delete_user(id: i64, user_service: &State<UserService>) -> Result<Json<String>, AppError> {
+    let msg = user_service.delete_user(id).await?;
+    Ok(Json(msg))
 }
 
 #[get("/<id>")]
@@ -32,5 +50,5 @@ async fn list_users(
 }
 
 pub fn routes() -> Vec<Route> {
-    routes![create_user, get_user, list_users]
+    routes![create_user, get_user, list_users, update_user, delete_user]
 }
