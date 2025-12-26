@@ -4,18 +4,14 @@ use rocket::{
     response::{self, Responder},
     serde::json::to_string,
 };
-use serde::Serialize;
+
+use crate::errors::types::ErrorResponse;
 
 #[derive(Debug, Clone)]
 pub enum AppError {
     NotFound(String),
     BadRequest(String),
     InternalError(String),
-}
-
-#[derive(Serialize)]
-struct ErrorResponse {
-    error: String,
 }
 
 impl<'r> Responder<'r, 'static> for AppError {

@@ -1,6 +1,7 @@
 mod auth;
 mod config;
 mod core;
+mod doc;
 mod dto;
 mod errors;
 mod middleware;
@@ -14,6 +15,8 @@ use repositories::user_repository::UserRepository;
 use rocket::catchers;
 use routes::{health_routes, user_routes};
 use services::user_service::UserService;
+use utoipa::OpenApi;
+use utoipa_scalar::{Scalar, Servable};
 
 use crate::{
     auth::JwtSecret,
@@ -72,6 +75,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .mount("/api/health", health_routes::routes())
         .mount("/api/users", user_routes::routes())
         .mount("/api/lessons", lesson_routes::routes())
+        .mount(
+            "/",
+            Scalar::with_url("/docs", doc::api_doc::ApiDoc::openapi()),
+        )
         .register(
             "/",
             catchers![

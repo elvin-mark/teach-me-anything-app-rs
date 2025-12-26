@@ -15,20 +15,6 @@ impl UserRepository {
         Arc::new(Self { pool })
     }
 
-    pub async fn create(&self, dto: CreateUserDto) -> Result<User, AppError> {
-        let user = sqlx::query_as::<_, User>(
-            "INSERT INTO users (username, password, email, created_at) VALUES (?, ?, ?, datetime('now')) RETURNING *"
-        )
-        .bind(&dto.username)
-        .bind(&dto.password)
-        .bind(&dto.email)
-        .fetch_one(&self.pool)
-        .await
-        .map_err(|e| AppError::InternalError(format!("Database error: {}", e)))?;
-
-        Ok(user)
-    }
-
     pub async fn create_with_password(
         &self,
         username: &str,
@@ -75,15 +61,6 @@ impl UserRepository {
             })?;
 
         Ok(user)
-    }
-
-    pub async fn find_all(&self) -> Result<Vec<User>, AppError> {
-        let users = sqlx::query_as::<_, User>("SELECT * FROM users")
-            .fetch_all(&self.pool)
-            .await
-            .map_err(|e| AppError::InternalError(format!("Database error: {}", e)))?;
-
-        Ok(users)
     }
 
     pub async fn update(&self, id: i64, dto: CreateUserDto) -> Result<User, AppError> {

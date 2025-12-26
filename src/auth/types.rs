@@ -11,5 +11,5 @@ pub struct Claims {
 #[derive(Debug, Clone)]
 pub struct AuthUser {
     pub id: i64,
-    pub username: String,
+    // pub username: String,
 }

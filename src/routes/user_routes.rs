@@ -1,54 +1,69 @@
 use crate::{
     dto::user_dto::{CreateUserDto, UserResponseDto},
-    errors::app_error::AppError,
+    errors::{app_error::AppError, types::ErrorResponse},
+    middleware::auth::AuthGuard,
     services::user_service::UserService,
 };
-use rocket::{Route, State, delete, get, patch, post, routes, serde::json::Json};
+use rocket::{Route, State, delete, get, patch, routes, serde::json::Json};
 
-#[post("/", data = "<create_user>")]
-async fn create_user(
-    create_user: Json<CreateUserDto>,
-    user_service: &State<UserService>,
-) -> Result<Json<UserResponseDto>, AppError> {
-    let user = user_service.create_user(create_user.into_inner()).await?;
-    Ok(Json(user))
-}
-
-#[patch("/<id>", data = "<update_user>")]
+#[utoipa::path(
+    patch,
+    path = "/api/users",
+    request_body = CreateUserDto,
+    responses(
+        (status = 200, description = "Lesson generated", body = UserResponseDto),
+        (status = 400, description = "Invalid input", body = ErrorResponse)
+    ),
+    tag = "Users"
+)]
+#[patch("/", data = "<update_user>")]
 async fn update_user(
-    id: i64,
+    _auth: AuthGuard,
     update_user: Json<CreateUserDto>,
     user_service: &State<UserService>,
 ) -> Result<Json<UserResponseDto>, AppError> {
     let user = user_service
-        .update_user(id, update_user.into_inner())
+        .update_user(_auth.user.id, update_user.into_inner())
         .await?;
     Ok(Json(user))
 }
 
-#[delete("/<id>")]
-async fn delete_user(id: i64, user_service: &State<UserService>) -> Result<Json<String>, AppError> {
-    let msg = user_service.delete_user(id).await?;
+#[utoipa::path(
+    delete,
+    path = "/api/users",
+    responses(
+        (status = 200, description = "Lesson generated", body = String),
+        (status = 400, description = "Invalid input", body = ErrorResponse)
+    ),
+    tag = "Users"
+)]
+#[delete("/")]
+async fn delete_user(
+    _auth: AuthGuard,
+    user_service: &State<UserService>,
+) -> Result<Json<String>, AppError> {
+    let msg = user_service.delete_user(_auth.user.id).await?;
     Ok(Json(msg))
 }
 
-#[get("/<id>")]
+#[utoipa::path(
+    get,
+    path = "/api/users",
+    responses(
+        (status = 200, description = "Lesson generated", body = UserResponseDto),
+        (status = 400, description = "Invalid input", body = ErrorResponse)
+    ),
+    tag = "Users"
+)]
+#[get("/")]
 async fn get_user(
-    id: i64,
+    _auth: AuthGuard,
     user_service: &State<UserService>,
 ) -> Result<Json<UserResponseDto>, AppError> {
-    let user = user_service.get_user(id).await?;
+    let user = user_service.get_user(_auth.user.id).await?;
     Ok(Json(user))
 }
 
-#[get("/")]
-async fn list_users(
-    user_service: &State<UserService>,
-) -> Result<Json<Vec<UserResponseDto>>, AppError> {
-    let users = user_service.list_users().await?;
-    Ok(Json(users))
-}
-
 pub fn routes() -> Vec<Route> {
-    routes![create_user, get_user, list_users, update_user, delete_user]
+    routes![get_user, update_user, delete_user]
 }

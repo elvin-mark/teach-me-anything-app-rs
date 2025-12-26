@@ -1,15 +1,28 @@
 use crate::{
-    core::agents::GeneratedLesson, errors::app_error::AppError, middleware::auth::AuthGuard,
+    core::agents::GeneratedLesson,
+    errors::{app_error::AppError, types::ErrorResponse},
+    middleware::auth::AuthGuard,
     services::lesson_service::LessonService,
 };
 use rocket::{Route, State, post, routes, serde::json::Json};
 use serde::Deserialize;
+use utoipa::ToSchema;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct GenerateLessonRequest {
     pub topic: String,
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/lessons/generate",
+    request_body = GenerateLessonRequest,
+    responses(
+        (status = 200, description = "Lesson generated", body = GeneratedLesson),
+        (status = 400, description = "Invalid input", body = ErrorResponse)
+    ),
+    tag = "Lessons"
+)]
 #[post("/generate", data = "<request>")]
 async fn generate_lesson(
     _auth: AuthGuard,

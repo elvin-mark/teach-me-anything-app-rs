@@ -1,14 +1,15 @@
 use crate::models::user::User;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct CreateUserDto {
     pub username: String,
     pub email: String,
-    pub password: String,
+    // pub password: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 pub struct UserResponseDto {
     pub id: i64,
     pub username: String,

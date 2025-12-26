@@ -5,7 +5,7 @@ use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
 
 pub struct AuthGuard {
-    user: AuthUser,
+    pub user: AuthUser,
 }
 
 #[rocket::async_trait]
@@ -49,7 +49,7 @@ impl<'r> FromRequest<'r> for AuthGuard {
             Ok(claims) => {
                 let user = AuthUser {
                     id: claims.sub.parse().unwrap_or(0),
-                    username: claims.username,
+                    // username: claims.username,
                 };
                 Outcome::Success(AuthGuard { user })
             }
