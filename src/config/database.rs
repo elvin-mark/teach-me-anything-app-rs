@@ -6,10 +6,10 @@ pub type DbPool = SqlitePool;
 pub async fn init_db_pool() -> DbPool {
     let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "sqlite:./data.db".to_string());
 
-    if let Some(db_path) = database_url.strip_prefix("sqlite:") {
-        if let Some(parent) = Path::new(db_path).parent() {
-            fs::create_dir_all(parent).expect("Failed to create database directory");
-        }
+    if let Some(db_path) = database_url.strip_prefix("sqlite:")
+        && let Some(parent) = Path::new(db_path).parent()
+    {
+        fs::create_dir_all(parent).expect("Failed to create database directory");
     }
 
     let connection_options = SqliteConnectOptions::from_str(&database_url)

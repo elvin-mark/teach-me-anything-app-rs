@@ -10,7 +10,7 @@ pub struct LessonAgent {
 
 impl LessonAgent {
     pub fn new(llm: Arc<dyn Llm>) -> Arc<Self> {
-        Arc::new(Self { llm: llm })
+        Arc::new(Self { llm })
     }
 
     pub async fn generate_lesson(
