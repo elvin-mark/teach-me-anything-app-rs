@@ -10,6 +10,9 @@ use rocket::{Route, State, delete, get, patch, routes, serde::json::Json};
     patch,
     path = "/api/users",
     request_body = CreateUserDto,
+    params(
+        ("Authorization" = String, Header, description = "Bearer token")
+    ),
     responses(
         (status = 200, description = "Lesson generated", body = UserResponseDto),
         (status = 400, description = "Invalid input", body = ErrorResponse)
@@ -31,6 +34,9 @@ async fn update_user(
 #[utoipa::path(
     delete,
     path = "/api/users",
+    params(
+        ("Authorization" = String, Header, description = "Bearer token")
+    ),
     responses(
         (status = 200, description = "Lesson generated", body = String),
         (status = 400, description = "Invalid input", body = ErrorResponse)
@@ -49,6 +55,9 @@ async fn delete_user(
 #[utoipa::path(
     get,
     path = "/api/users",
+    params(
+        ("Authorization" = String, Header, description = "Bearer token")
+    ),
     responses(
         (status = 200, description = "Lesson generated", body = UserResponseDto),
         (status = 400, description = "Invalid input", body = ErrorResponse)

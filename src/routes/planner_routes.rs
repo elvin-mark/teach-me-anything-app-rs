@@ -11,6 +11,9 @@ use rocket::{Route, State, post, routes, serde::json::Json};
     post,
     path = "/api/planner/roadmap/generate",
     request_body = GenerateRoadmapRequest,
+    params(
+        ("Authorization" = String, Header, description = "Bearer token")
+    ),
     responses(
         (status = 200, description = "Lesson generated", body = GeneratedRoadmap),
         (status = 400, description = "Invalid input", body = ErrorResponse)

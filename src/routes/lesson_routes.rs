@@ -11,6 +11,9 @@ use rocket::{Route, State, post, routes, serde::json::Json};
     post,
     path = "/api/lessons/generate",
     request_body = GenerateLessonRequest,
+    params(
+        ("Authorization" = String, Header, description = "Bearer token")
+    ),
     responses(
         (status = 200, description = "Lesson generated", body = GeneratedLesson),
         (status = 400, description = "Invalid input", body = ErrorResponse)
