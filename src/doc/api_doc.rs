@@ -23,6 +23,11 @@ use crate::routes::user_routes::__path_update_user;
         delete_user,
         get_user,
         update_user),
+    info(
+        title = "Teach Me Anything API",
+        description = "APIs used in the Teach Me Anything platform",
+        version = "1.0.0"
+    ),
     components(schemas(
         GenerateLessonRequest,
         GeneratedLesson,
