@@ -1,24 +1,23 @@
-use super::types::GeneratedLesson;
-use crate::core::agents::utils::clean_json_response;
-use crate::core::llm::Llm;
+use super::types::GeneratedRoadmap;
+use crate::core::{agents::utils::clean_json_response, llm::Llm};
 use core::str;
 use std::sync::Arc;
 
 #[derive(Clone)]
-pub struct LessonAgent {
+pub struct PlannerAgent {
     llm: Arc<dyn Llm>,
 }
 
-impl LessonAgent {
+impl PlannerAgent {
     pub fn new(llm: Arc<dyn Llm>) -> Arc<Self> {
         Arc::new(Self { llm })
     }
 
-    pub async fn generate_lesson(
+    pub async fn generate_roadmap(
         &self,
-        topic: &str,
-    ) -> Result<GeneratedLesson, Box<dyn std::error::Error>> {
-        let prompt = self.lesson_generation_prompt(topic);
+        goal: &str,
+    ) -> Result<GeneratedRoadmap, Box<dyn std::error::Error>> {
+        let prompt = self.roadmap_generation_prompt(goal);
 
         let resp = self.llm.get_response(&prompt).await?;
 
@@ -35,19 +34,23 @@ impl LessonAgent {
         log::debug!("Response from LLM: {}", cleaned);
 
         // Parse JSON
-        let generated_lesson: GeneratedLesson =
+        let generated_roadmap: GeneratedRoadmap =
             serde_json::from_str(&cleaned).map_err(|e| format!("Failed to parse JSON: {}", e))?;
 
-        Ok(generated_lesson)
+        Ok(generated_roadmap)
     }
 
-    fn lesson_generation_prompt(&self, topic: &str) -> String {
+    fn roadmap_generation_prompt(&self, goal: &str) -> String {
         format!(
-            r#"Generate a short lesson for the topic: {topic}.
-Please provide a complete lesson in JSON format with the following structure:
+            r#"Generate a detail roadmap for the goal: {goal}.
+Please provide a complete list of small milestones in JSON format with the following structure:
 {{
-  "title": "Lesson title",
-  "content": "This is the content of the lesson in markdown format and as an string"
+  "goal": "the goal of the roadmap",
+  "milestones": [
+    "Milestone 1",
+    "Milestone 2",
+    "Milestone 3"
+  ]
 }}
 
 Return ONLY valid JSON, no additional text."#,

@@ -1,17 +1,11 @@
 use crate::{
     core::agents::GeneratedLesson,
+    dto::lesson_dto::GenerateLessonRequest,
     errors::{app_error::AppError, types::ErrorResponse},
     middleware::auth::AuthGuard,
     services::lesson_service::LessonService,
 };
 use rocket::{Route, State, post, routes, serde::json::Json};
-use serde::Deserialize;
-use utoipa::ToSchema;
-
-#[derive(Debug, Deserialize, ToSchema)]
-pub struct GenerateLessonRequest {
-    pub topic: String,
-}
 
 #[utoipa::path(
     post,

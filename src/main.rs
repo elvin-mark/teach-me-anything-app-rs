@@ -10,7 +10,6 @@ mod repositories;
 mod routes;
 mod services;
 
-// use config::database::init_db_pool;
 use repositories::user_repository::UserRepository;
 use rocket::catchers;
 use routes::{health_routes, user_routes};
@@ -22,11 +21,13 @@ use crate::{
     auth::JwtSecret,
     config::database::{init_db_pool, run_migrations},
     core::{
-        agents::LessonAgent,
+        agents::{LessonAgent, planner_agent::PlannerAgent},
         llm::{self, new_llm},
     },
-    routes::{auth_routes, lesson_routes},
-    services::{auth_service::AuthService, lesson_service::LessonService},
+    routes::{auth_routes, lesson_routes, planner_routes},
+    services::{
+        auth_service::AuthService, lesson_service::LessonService, planner_service::PlannerService,
+    },
 };
 
 #[rocket::main]
@@ -56,6 +57,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Initialize agents
     let lesson_agent = LessonAgent::new(llm.clone());
+    let planner_agent = PlannerAgent::new(llm.clone());
 
     // Initialize repositories
     let user_repo = UserRepository::new(db_pool.clone());
@@ -63,6 +65,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize services
     let user_service = UserService::new(user_repo.clone());
     let lesson_service = LessonService::new(lesson_agent.clone());
+    let planner_service = PlannerService::new(planner_agent.clone());
     let auth_service = AuthService::new(user_repo.clone(), jwt_secret.clone());
 
     rocket::build()
@@ -70,11 +73,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .manage(jwt_secret)
         .manage(user_service)
         .manage(lesson_service)
+        .manage(planner_service)
         .manage(auth_service)
         .mount("/api/auth", auth_routes::routes())
         .mount("/api/health", health_routes::routes())
         .mount("/api/users", user_routes::routes())
         .mount("/api/lessons", lesson_routes::routes())
+        .mount("/api/planner", planner_routes::routes())
         .mount(
             "/",
             Scalar::with_url("/docs", doc::api_doc::ApiDoc::openapi()),
