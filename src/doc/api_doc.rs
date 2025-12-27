@@ -19,6 +19,8 @@ use crate::routes::user_routes::__path_delete_user;
 use crate::routes::user_routes::__path_get_user;
 use crate::routes::user_routes::__path_update_user;
 
+use crate::doc::security::SecurityAddon;
+
 #[derive(OpenApi)]
 #[openapi(
     paths(
@@ -37,6 +39,10 @@ use crate::routes::user_routes::__path_update_user;
         title = "Teach Me Anything API",
         description = "APIs used in the Teach Me Anything platform",
         version = "1.0.0"
+    ),
+    modifiers(&SecurityAddon),
+    security(
+        ("bearerAuth" = [])
     ),
     components(schemas(
         GradeQuestionRequest,

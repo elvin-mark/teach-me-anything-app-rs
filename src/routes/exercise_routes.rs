@@ -11,9 +11,6 @@ use rocket::{Route, State, post, routes, serde::json::Json};
     post,
     path = "/api/exercise/questions/generate",
     request_body = GenerateQuestionsRequest,
-    params(
-        ("Authorization" = String, Header, description = "Bearer token")
-    ),
     responses(
         (status = 200, description = "Lesson generated", body = GeneratedQuestions),
         (status = 400, description = "Invalid input", body = ErrorResponse)
@@ -38,9 +35,6 @@ async fn generate_questions(
     post,
     path = "/api/exercise/question/grade",
     request_body = GradeQuestionRequest,
-    params(
-        ("Authorization" = String, Header, description = "Bearer token")
-    ),
     responses(
         (status = 200, description = "Question graded", body = GeneratedGrading),
         (status = 400, description = "Invalid input", body = ErrorResponse)
