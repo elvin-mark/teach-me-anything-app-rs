@@ -21,12 +21,13 @@ use crate::{
     auth::JwtSecret,
     config::database::{init_db_pool, run_migrations},
     core::{
-        agents::{LessonAgent, planner_agent::PlannerAgent},
+        agents::{LessonAgent, exercise_agent::ExerciseAgent, planner_agent::PlannerAgent},
         llm::{self, new_llm},
     },
-    routes::{auth_routes, lesson_routes, planner_routes},
+    routes::{auth_routes, exercise_routes, lesson_routes, planner_routes},
     services::{
-        auth_service::AuthService, lesson_service::LessonService, planner_service::PlannerService,
+        auth_service::AuthService, exercise_service::ExerciseService,
+        lesson_service::LessonService, planner_service::PlannerService,
     },
 };
 
@@ -58,6 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize agents
     let lesson_agent = LessonAgent::new(llm.clone());
     let planner_agent = PlannerAgent::new(llm.clone());
+    let exercise_agent = ExerciseAgent::new(llm.clone());
 
     // Initialize repositories
     let user_repo = UserRepository::new(db_pool.clone());
@@ -66,6 +68,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let user_service = UserService::new(user_repo.clone());
     let lesson_service = LessonService::new(lesson_agent.clone());
     let planner_service = PlannerService::new(planner_agent.clone());
+    let exercise_service = ExerciseService::new(exercise_agent.clone());
     let auth_service = AuthService::new(user_repo.clone(), jwt_secret.clone());
 
     rocket::build()
@@ -74,12 +77,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .manage(user_service)
         .manage(lesson_service)
         .manage(planner_service)
+        .manage(exercise_service)
         .manage(auth_service)
         .mount("/api/auth", auth_routes::routes())
         .mount("/api/health", health_routes::routes())
         .mount("/api/users", user_routes::routes())
         .mount("/api/lessons", lesson_routes::routes())
         .mount("/api/planner", planner_routes::routes())
+        .mount("/api/exercise", exercise_routes::routes())
         .mount(
             "/",
             Scalar::with_url("/docs", doc::api_doc::ApiDoc::openapi()),

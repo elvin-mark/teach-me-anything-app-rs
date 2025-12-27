@@ -1,3 +1,4 @@
+pub mod exercise_agent;
 pub mod lesson_agent;
 pub mod planner_agent;
 pub mod types;

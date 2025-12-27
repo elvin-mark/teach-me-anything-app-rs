@@ -1,4 +1,5 @@
 pub mod auth_routes;
+pub mod exercise_routes;
 pub mod health_routes;
 pub mod lesson_routes;
 pub mod planner_routes;

@@ -26,12 +26,12 @@ async fn generate_roadmap(
     request: Json<GenerateRoadmapRequest>,
     planner_service: &State<PlannerService>,
 ) -> Result<Json<GeneratedRoadmap>, AppError> {
-    let lesson = planner_service
+    let roadmap = planner_service
         .generate_roadmap(&request.goal)
         .await
         .map_err(|e| AppError::InternalError(format!("Failed to generate lesson: {}", e)))?;
 
-    Ok(Json(lesson))
+    Ok(Json(roadmap))
 }
 
 pub fn routes() -> Vec<Route> {
